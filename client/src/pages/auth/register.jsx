@@ -1,41 +1,53 @@
 import CommonForm from '@/components/common/form';
 import React, { useState } from 'react';
 import { registerFormControls } from '@/config';
-import { Link } from 'react-router-dom'; 
-const intialState ={
-    userName : '',
-    email : '',
-    password : ''
-}
+import { Link, useNavigate } from 'react-router-dom'; 
+import { useDispatch } from 'react-redux';
+import { registerUser } from '@/store/auth-slice';
+import { useToast } from '@/hooks/use-toast';
 
-// Ensure this import is added
+const initialState = {
+    userName: '',
+    email: '',
+    password: ''
+};
 
 function AuthRegister() {
+    const [formData, setFormData] = useState(initialState);
+    const dispatch = useDispatch();
+    const navigate = useNavigate();
+    const {toast}= useToast()
 
-
-    const [formData,setFormData]=useState(intialState)
-
-    function onSubmit(){
-
+    function onSubmit(event) {
+        event.preventDefault();
+        dispatch(registerUser(formData)).then((data) => {
+            if(data?.payload?.success){
+                toast({
+                    title:data?.payload?.message,
+                })
+             } navigate('/auth/login')
+        });
     }
 
+    console.log(formData);
 
-    return (  
+    return (
         <div className="mx-auto w-full max-w-md space-y-6">
             <div className="text-center">
                 <h1 className="text-3xl font-bold tracking-tight text-foreground">Create new account</h1>
-                <p className="mt-1">Already have an account
+                <p className="mt-1">
+                    Already have an account?
                     <Link className='font-medium ml-2 text-primary hover:underline' to='/auth/login'>Login</Link>
                 </p>
             </div>
             <CommonForm
-            formControls={registerFormControls}
-            buttonText={'Sign Up'}
-            formData={formData}
-            setFormData={setFormData}      
-            onSubmit={onSubmit} 
+                formControls={registerFormControls}
+                buttonText={'Sign Up'}
+                formData={formData}
+                setFormData={setFormData}
+                onSubmit={onSubmit}
             />
-     </div>
+        </div>
     );
 }
 
